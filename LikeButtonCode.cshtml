@@ -1,0 +1,52 @@
+﻿
+//  VIEW
+@{
+    var likeId = Html.DisplayFor(modelItem => item.Id).ToString();
+
+    <div>
+        @*@Html.AntiForgeryToken()*@
+        <input type="submit" value="&#xf004;" id="addLikes" onclick="AddLike( @Html.DisplayFor(modelItem => item.Likes), '@likeId' )" />
+        <span id=@likeId>@Html.DisplayFor(modelItem => item.Likes)</span>
+    </div>
+
+}
+
+//  MODEL
+namespace Podcast.Models
+{
+	public class Podcast
+	{
+		[Key]
+		public Guid Id { get; set; }
+		public string Episode { get; set; }
+		public string Text { get; set; }
+		public DateTime Timestamp { get; set; }
+		public string Speaker { get; set; }
+		// added to follow a tutorial
+		public int Likes { get; set; }
+        public string AudioURL { get; set; }
+        public string ImageURL { get; set; }
+        public string YouTubeID { get; set; }
+	}
+
+	// The database : in a class
+    public class PodcastDbContext: DbContext
+    {
+		// tables
+        public DbSet<Podcast>
+        Podcast { get; set; }
+    }
+
+}
+
+//  CONTROLLER
+[HttpPost]
+[ValidateAntiForgeryToken] 
+public ActionResult UpdateLikes([Bind(Include = "Likes")] Guid id, int newLike)
+{
+    Podcast.Models.Podcast newestLike = db.Podcast.Find(id);
+    newestLike.Likes = newLike;
+    db.Entry(newestLike).State = EntityState.Modified;
+    db.SaveChanges();
+    return View();
+}
